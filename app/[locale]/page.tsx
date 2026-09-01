@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { ArrowRight, BadgePercent, Star } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
-import { allCategories, allProducts, allServices, formatPrice } from "@/lib/demo";
-import { dictionary } from "@/lib/site";
+import { allCategories, allProducts, allServices, dictionary, formatPrice } from "@/lib/site";
 
 export function generateStaticParams() {
   return [{ locale: "fr" }, { locale: "ar" }];
 }
 
-export default function LocaleHome({ params }: { params: { locale: string } }) {
-  const locale = params.locale === "ar" ? "ar" : "fr";
+export default async function LocaleHome({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: requestedLocale } = await params;
+  const locale = requestedLocale === "ar" ? "ar" : "fr";
   const t = dictionary[locale];
   const featured = allProducts.slice(0, 4);
   const categories = allCategories.slice(0, 4);

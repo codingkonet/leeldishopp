@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-export default function AccountPage({ params }: { params: { locale: string } }) {
-  const locale = params.locale === "ar" ? "ar" : "fr";
+export default async function AccountPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: requestedLocale } = await params;
+  const locale = requestedLocale === "ar" ? "ar" : "fr";
 
   return (
     <div dir={locale === "ar" ? "rtl" : "ltr"} className="mx-auto max-w-6xl px-4 py-10">

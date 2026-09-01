@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
-import { allProducts } from "@/lib/demo";
-import { dictionary } from "@/lib/site";
+import { allProducts, dictionary } from "@/lib/site";
 
 export function generateStaticParams() {
   return [{ locale: "fr" }, { locale: "ar" }];
 }
 
-export default function ProductCatalog({ params }: { params: { locale: string } }) {
-  const locale = params.locale === "ar" ? "ar" : "fr";
+export default async function ProductCatalog({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: requestedLocale } = await params;
+  const locale = requestedLocale === "ar" ? "ar" : "fr";
   const t = dictionary[locale];
 
   return (

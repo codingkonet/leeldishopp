@@ -81,8 +81,6 @@ model Customer {
 
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   orders         Order[]
-  wishlists      Wishlist[]
-  reviews        Review[]
 }
 
 model Admin {

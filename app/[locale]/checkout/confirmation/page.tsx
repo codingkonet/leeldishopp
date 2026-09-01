@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-export default function CheckoutConfirmationPage({ params }: { params: { locale: string } }) {
-  const locale = params.locale === "ar" ? "ar" : "fr";
+export default async function CheckoutConfirmationPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: requestedLocale } = await params;
+  const locale = requestedLocale === "ar" ? "ar" : "fr";
 
   return (
     <div dir={locale === "ar" ? "rtl" : "ltr"} className="mx-auto max-w-4xl px-4 py-16">

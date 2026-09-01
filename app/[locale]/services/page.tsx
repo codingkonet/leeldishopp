@@ -1,7 +1,8 @@
-import { allServices } from "@/lib/demo";
+import { allServices } from "@/lib/site";
 
-export default function ServicesPage({ params }: { params: { locale: string } }) {
-  const locale = params.locale === "ar" ? "ar" : "fr";
+export default async function ServicesPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: requestedLocale } = await params;
+  const locale = requestedLocale === "ar" ? "ar" : "fr";
 
   return (
     <div dir={locale === "ar" ? "rtl" : "ltr"} className="mx-auto max-w-7xl px-4 py-10">

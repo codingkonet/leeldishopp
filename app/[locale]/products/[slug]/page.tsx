@@ -2,15 +2,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/ProductCard";
-import { allProducts, formatPrice } from "@/lib/demo";
+import { allProducts, formatPrice } from "@/lib/site";
 
 export function generateStaticParams() {
   return allProducts.map((product) => ({ locale: "fr", slug: product.slug }));
 }
 
-export default function ProductDetail({ params }: { params: { locale: string; slug: string } }) {
-  const locale = params.locale === "ar" ? "ar" : "fr";
-  const product = allProducts.find((item) => item.slug === params.slug);
+export default async function ProductDetail({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale: requestedLocale, slug } = await params;
+  const locale = requestedLocale === "ar" ? "ar" : "fr";
+  const product = allProducts.find((item) => item.slug === slug);
 
   if (!product) {
     notFound();

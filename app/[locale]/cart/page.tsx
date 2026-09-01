@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
-import { calculateCartSummary, formatPrice } from "@/lib/demo";
+import { calculateCartSummary } from "@/lib/demo";
+import { formatPrice } from "@/lib/site";
 
 const cartItems = [
   { id: "1", name: "Djellaba traditionnelle bleu", quantity: 1, price: 420 },
   { id: "2", name: "Huile d’argan pure", quantity: 2, price: 180 },
 ];
 
-export default function CartPage({ params }: { params: { locale: string } }) {
-  const locale = params.locale === "ar" ? "ar" : "fr";
+export default async function CartPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: requestedLocale } = await params;
+  const locale = requestedLocale === "ar" ? "ar" : "fr";
   const summary = calculateCartSummary(cartItems);
 
   return (
