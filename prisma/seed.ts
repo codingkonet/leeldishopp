@@ -72,7 +72,6 @@ async function main() {
 
   const modeCategory = await prisma.category.findUnique({ where: { slug: "mode-marocaine" } });
   const artisanCategory = await prisma.category.findUnique({ where: { slug: "artisanat-marocain" } });
-  const servicesCategory = await prisma.category.findUnique({ where: { slug: "services" } });
 
   const products = [
     {

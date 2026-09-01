@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 
 export default function RegisterPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: requestedLocale } = use(params);
   const locale = requestedLocale === "ar" ? "ar" : "fr";
+  const router = useRouter();
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -18,7 +20,7 @@ export default function RegisterPage({ params }: { params: Promise<{ locale: str
       setError(locale === "fr" ? "Impossible de créer le compte. Vérifiez vos informations." : "تعذر إنشاء الحساب. تحقق من المعلومات.");
       return;
     }
-    window.location.assign(`/${locale}/account/login`);
+    router.push(`/${locale}/account/login`);
   }
 
   return (

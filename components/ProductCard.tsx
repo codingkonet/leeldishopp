@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart, Eye } from "lucide-react";
+import type { Product } from "@/lib/demo";
 import { formatPrice } from "@/lib/site";
 
-export function ProductCard({ product, locale }: { product: any; locale: "fr" | "ar" }) {
+export function ProductCard({ product, locale }: { product: Product; locale: "fr" | "ar" }) {
   const price = formatPrice(product.price, locale);
   const oldPrice = product.oldPrice ? formatPrice(product.oldPrice, locale) : null;
 
