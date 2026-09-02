@@ -1,10 +1,19 @@
+"use client";
+
 import Link from "next/link";
 import { ShoppingCart, Search, User } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import { dictionary, appName, slogan } from "@/lib/site";
+import { useCart } from "@/lib/cart-context";
+
+const ADMIN_ROLES = new Set(["SUPER_ADMIN", "ADMIN", "MANAGER", "ORDER_MANAGER", "PRODUCT_MANAGER"]);
 
 export function Header({ locale }: { locale: "fr" | "ar" }) {
   const isRtl = locale === "ar";
   const t = dictionary[locale];
+  const { data: session, status } = useSession();
+  const { count } = useCart();
+  const isAdmin = Boolean(session?.user?.role && ADMIN_ROLES.has(session.user.role));
 
   return (
     <header className={`border-b bg-white/95 backdrop-blur ${isRtl ? "rtl" : "ltr"}`} dir={isRtl ? "rtl" : "ltr"}>
@@ -39,12 +48,38 @@ export function Header({ locale }: { locale: "fr" | "ar" }) {
           <Link href={`/${locale === "fr" ? "ar" : "fr"}`} className="rounded-full border px-3 py-1.5 text-xs font-semibold text-slate-700">
             {locale === "fr" ? "العربية" : "FR"}
           </Link>
-          <Link href={`/${locale}/account`} className="rounded-full border p-2 text-slate-700">
-            <User className="h-4 w-4" />
-          </Link>
+
+          {isAdmin && (
+            <Link href="/admin" className="rounded-full border px-3 py-1.5 text-xs font-semibold text-slate-700">
+              {t.admin}
+            </Link>
+          )}
+
+          {status === "authenticated" ? (
+            <>
+              <Link href={`/${locale}/account`} className="rounded-full border p-2 text-slate-700">
+                <User className="h-4 w-4" />
+              </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: `/${locale}` })}
+                className="rounded-full border px-3 py-1.5 text-xs font-semibold text-slate-700"
+              >
+                {locale === "fr" ? "Déconnexion" : "خروج"}
+              </button>
+            </>
+          ) : (
+            <Link href={`/${locale}/account/login`} className="rounded-full border px-3 py-1.5 text-xs font-semibold text-slate-700">
+              {t.signIn}
+            </Link>
+          )}
+
           <Link href={`/${locale}/cart`} className="relative rounded-full bg-[#1f2937] p-2 text-white">
             <ShoppingCart className="h-4 w-4" />
-            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#b47d2d] text-[10px] font-bold text-white">3</span>
+            {count > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#b47d2d] text-[10px] font-bold text-white">
+                {count}
+              </span>
+            )}
           </Link>
         </div>
       </div>

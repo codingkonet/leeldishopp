@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ProductActions } from "@/components/ProductActions";
 import { ProductCard } from "@/components/ProductCard";
 import { allProducts, formatPrice } from "@/lib/site";
 
@@ -54,10 +55,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ loca
 
           <p className="text-slate-600">{locale === "fr" ? product.descriptionFr : product.descriptionAr}</p>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <button className="rounded-full bg-[#1f2937] px-5 py-3 font-semibold text-white">Ajouter au panier</button>
-            <button className="rounded-full border border-[#1f2937] px-5 py-3 font-semibold text-[#1f2937]">Acheter maintenant</button>
-          </div>
+          <ProductActions product={product} locale={locale} />
 
           <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
             <div className="flex items-center justify-between border-b py-2"><span>Disponibilité</span><span className="font-semibold text-emerald-700">En stock</span></div>

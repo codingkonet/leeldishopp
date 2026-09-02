@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
+import { Providers } from "@/components/Providers";
 import { appName } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -12,9 +13,11 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const locale = requestedLocale === "ar" ? "ar" : "fr";
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <Header locale={locale} />
-      <main>{children}</main>
-    </div>
+    <Providers>
+      <div className="min-h-screen bg-slate-50 text-slate-900">
+        <Header locale={locale} />
+        <main>{children}</main>
+      </div>
+    </Providers>
   );
 }

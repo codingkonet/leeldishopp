@@ -1,12 +1,31 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Eye } from "lucide-react";
+import { ShoppingCart, Eye, Check } from "lucide-react";
+import { useState } from "react";
 import type { Product } from "@/lib/demo";
 import { formatPrice } from "@/lib/site";
+import { useCart } from "@/lib/cart-context";
 
 export function ProductCard({ product, locale }: { product: Product; locale: "fr" | "ar" }) {
+  const { addItem } = useCart();
+  const [added, setAdded] = useState(false);
   const price = formatPrice(product.price, locale);
   const oldPrice = product.oldPrice ? formatPrice(product.oldPrice, locale) : null;
+
+  function handleAddToCart() {
+    addItem({
+      productId: product.id,
+      slug: product.slug,
+      nameFr: product.nameFr,
+      nameAr: product.nameAr,
+      price: product.price,
+      image: product.image,
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  }
 
   return (
     <article className="overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
@@ -26,8 +45,8 @@ export function ProductCard({ product, locale }: { product: Product; locale: "fr
         <div className="flex items-center justify-between gap-2">
           <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">{product.stock > 0 ? "En stock" : "Rupture"}</span>
           <div className="flex gap-2">
-            <button className="rounded-full bg-[#1f2937] p-2 text-white">
-              <ShoppingCart className="h-4 w-4" />
+            <button onClick={handleAddToCart} className="rounded-full bg-[#1f2937] p-2 text-white">
+              {added ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
             </button>
             <Link href={`/${locale}/products/${product.slug}`} className="rounded-full border p-2 text-slate-700">
               <Eye className="h-4 w-4" />

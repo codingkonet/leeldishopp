@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 
 export default function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: requestedLocale } = use(params);
   const locale = requestedLocale === "ar" ? "ar" : "fr";
+  const router = useRouter();
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -16,12 +18,15 @@ export default function LoginPage({ params }: { params: Promise<{ locale: string
     const result = await signIn("credentials", {
       email: String(formData.get("email")),
       password: String(formData.get("password")),
-      callbackUrl: "/admin",
       redirect: false,
     });
     setIsSubmitting(false);
-    if (result?.error) setError(locale === "fr" ? "Email ou mot de passe incorrect." : "البريد الإلكتروني أو كلمة المرور غير صحيحين.");
-    else window.location.assign(result?.url ?? `/${locale}/account`);
+    if (result?.error) {
+      setError(locale === "fr" ? "Email ou mot de passe incorrect." : "البريد الإلكتروني أو كلمة المرور غير صحيحين.");
+      return;
+    }
+    router.push(`/${locale}/account`);
+    router.refresh();
   }
 
   return (
