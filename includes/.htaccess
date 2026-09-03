@@ -1,0 +1,7 @@
+# Deny direct web access to shared PHP includes (they should only be `require`d).
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Deny from all
+</IfModule>

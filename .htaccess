@@ -1,0 +1,13 @@
+Options -Indexes
+
+# Never expose environment files or the CLI installer publicly.
+# setup.php protects itself with the .installed lock and should be deleted after use.
+<FilesMatch "^\.env|^install\.php$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

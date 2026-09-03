@@ -1,0 +1,6 @@
+Options -Indexes
+
+# Plugins are installed here but loaded only by explicit application code.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
