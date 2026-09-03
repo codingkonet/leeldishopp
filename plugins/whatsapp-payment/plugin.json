@@ -1,0 +1,8 @@
+{
+  "name": "LebeldiShop WhatsApp Payment",
+  "slug": "whatsapp-payment",
+  "version": "1.0.0",
+  "type": "integration-bundle",
+  "requires": "LebeldiShop PHP 1.0",
+  "description": "Adds WhatsApp as a checkout payment option using the store-configured WhatsApp number."
+}
