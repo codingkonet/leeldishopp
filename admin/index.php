@@ -24,6 +24,13 @@ $recentOrders = $pdo->query('SELECT order_number, customer_name, total, status, 
     <div class="stat-card"><p class="muted"><?= $lang === 'fr' ? 'Clients' : 'العملاء' ?></p><p class="value"><?= $customerCount ?></p></div>
 </div>
 
+<div class="panel" style="margin-bottom:1.5rem; border-color:#f0d69f; background:#fffaf0;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+        <div><h2 style="margin:0;"><?= $lang === 'fr' ? 'Importer depuis AliExpress' : 'الاستيراد من علي إكسبريس' ?></h2><p class="muted"><?= $lang === 'fr' ? 'Ajoutez un produit avec son URL publique, puis vérifiez-le avant publication.' : 'أضف منتجاً عبر رابطه العام ثم راجعه قبل النشر.' ?></p></div>
+        <a class="btn btn-brand" href="<?= href_page('admin/import-aliexpress.php') ?>">↓ <?= $lang === 'fr' ? 'Importer une URL' : 'استيراد رابط' ?></a>
+    </div>
+</div>
+
 <div class="panel">
     <h2><?= $lang === 'fr' ? 'Dernières commandes' : 'أحدث الطلبات' ?></h2>
     <table style="margin-top:1rem;">

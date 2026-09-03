@@ -75,6 +75,14 @@ delivery zones, reviews, wishlists, and order discounts. It also enables `/track
 `/admin/coupons.php`, `/admin/delivery-zones.php`, and `/admin/reviews.php`. Run both migrations
 on databases created before these features were added.
 
+## AliExpress URL importer
+
+The admin dashboard now includes an AliExpress importer at `/admin/import-aliexpress.php`.
+Paste a public HTTPS product URL to create an unpublished draft using public JSON-LD/Open Graph
+metadata. Review supplier data and permissions before publishing. If AliExpress blocks the
+request or exposes incomplete data, use the official API or the existing CSV importer; the app
+does not bypass CAPTCHA, login, rate limits, or anti-bot controls.
+
 ## WhatsApp payment
 
 Apply `database/migrations/005_whatsapp_payment.sql` on existing databases. Then open

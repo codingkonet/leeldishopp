@@ -21,6 +21,7 @@ $user = current_user();
         <a href="<?= href_page('admin/index.php') ?>"><?= $lang === 'fr' ? 'Vue d’ensemble' : 'نظرة عامة' ?></a>
         <a href="<?= href_page('admin/orders.php') ?>"><?= $lang === 'fr' ? 'Commandes' : 'الطلبات' ?></a>
         <a href="<?= href_page('admin/products.php') ?>"><?= $lang === 'fr' ? 'Produits' : 'المنتجات' ?></a>
+        <a href="<?= href_page('admin/import-aliexpress.php') ?>"><?= $lang === 'fr' ? 'AliExpress URL' : 'رابط علي إكسبريس' ?></a>
         <a href="<?= href_page('admin/import-products.php') ?>"><?= $lang === 'fr' ? 'Importer produits' : 'استيراد المنتجات' ?></a>
         <a href="<?= href_page('admin/coupons.php') ?>"><?= $lang === 'fr' ? 'Coupons' : 'القسائم' ?></a>
         <a href="<?= href_page('admin/delivery-zones.php') ?>"><?= $lang === 'fr' ? 'Livraison' : 'التوصيل' ?></a>

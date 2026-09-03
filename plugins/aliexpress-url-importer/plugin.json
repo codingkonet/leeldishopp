@@ -1,0 +1,8 @@
+{
+  "name": "LebeldiShop AliExpress URL Importer",
+  "slug": "aliexpress-url-importer",
+  "version": "1.0.0",
+  "type": "integration",
+  "requires": "LebeldiShop PHP 1.0",
+  "description": "Imports public AliExpress product metadata into an unpublished LebeldiShop product draft."
+}
