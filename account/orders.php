@@ -4,7 +4,7 @@ require __DIR__ . '/../includes/bootstrap.php';
 require_login(href_page('account/login.php'));
 $user = current_user();
 
-$stmt = $pdo->prepare('SELECT id, order_number, total, status, created_at FROM orders WHERE user_id = ? ORDER BY created_at DESC');
+$stmt = $pdo->prepare('SELECT id, order_number, total, status, payment_status, created_at FROM orders WHERE user_id = ? ORDER BY created_at DESC');
 $stmt->execute([$user['id']]);
 $orders = $stmt->fetchAll();
 
@@ -24,6 +24,7 @@ require __DIR__ . '/../includes/header.php';
                 <th><?= $lang === 'fr' ? 'Date' : 'التاريخ' ?></th>
                 <th><?= $lang === 'fr' ? 'Statut' : 'الحالة' ?></th>
                 <th><?= e(t('total')) ?></th>
+                <th><?= $lang === 'fr' ? 'Téléchargements' : 'التنزيلات' ?></th>
             </tr>
         </thead>
         <tbody>
@@ -33,6 +34,7 @@ require __DIR__ . '/../includes/header.php';
                     <td><?= e(date('d/m/Y', strtotime($order['created_at']))) ?></td>
                     <td><span class="badge" style="background:#fdf4d8; color:#8a5a12;"><?= e(get_order_status_label($order['status'], $lang)) ?></span></td>
                     <td><?= format_price((float) $order['total'], $lang) ?></td>
+                    <td><?php if ($order['status'] === 'DELIVERED' || $order['payment_status'] === 'PAID'): ?><a href="<?= href_page('account/order-downloads.php?order=' . urlencode($order['order_number'])) ?>">Voir</a><?php else: ?>—<?php endif; ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

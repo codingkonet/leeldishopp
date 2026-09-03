@@ -72,3 +72,11 @@ function cart_subtotal(PDO $pdo): float
     }
     return $subtotal;
 }
+
+function cart_has_digital(PDO $pdo): bool
+{
+    foreach (cart_lines($pdo) as $line) {
+        if ($line['product']['product_type'] === 'DIGITAL') return true;
+    }
+    return false;
+}

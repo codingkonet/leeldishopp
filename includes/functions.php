@@ -121,6 +121,23 @@ function upload_brand_asset(array $upload, string $kind): ?string
     return href_asset('assets/uploads/' . $filename);
 }
 
+function upload_digital_asset(array $upload): ?array
+{
+    if (($upload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) return null;
+    if (($upload['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK || ($upload['size'] ?? 0) > 50 * 1024 * 1024) {
+        throw new RuntimeException('The digital file upload failed or exceeds the 50 MB limit.');
+    }
+    $allowed = ['application/pdf' => 'pdf', 'application/zip' => 'zip', 'application/epub+zip' => 'epub'];
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file((string) $upload['tmp_name']);
+    if (!isset($allowed[$mime])) throw new RuntimeException('Digital files must be PDF, ZIP, or EPUB.');
+
+    $directory = dirname(__DIR__) . '/storage/digital';
+    if (!is_dir($directory) && !mkdir($directory, 0750, true) && !is_dir($directory)) throw new RuntimeException('Cannot create digital storage.');
+    $filename = bin2hex(random_bytes(16)) . '.' . $allowed[$mime];
+    if (!move_uploaded_file((string) $upload['tmp_name'], $directory . '/' . $filename)) throw new RuntimeException('Cannot save digital file.');
+    return ['path' => $directory . '/' . $filename, 'filename' => basename((string) $upload['name'])];
+}
+
 function format_price(float $value, string $lang = 'fr'): string
 {
     $formatted = number_format($value, 0, ',', ' ');

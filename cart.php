@@ -22,7 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $lines = cart_lines($pdo);
 $subtotal = cart_subtotal($pdo);
-$shippingFee = ($subtotal === 0.0 || $subtotal >= FREE_SHIPPING_THRESHOLD) ? 0.0 : DEFAULT_SHIPPING_FEES['STANDARD'];
+$digitalOnly = $lines !== [] && count(array_filter($lines, static fn (array $line): bool => $line['product']['product_type'] !== 'DIGITAL')) === 0;
+$shippingFee = ($subtotal === 0.0 || $subtotal >= FREE_SHIPPING_THRESHOLD || $digitalOnly) ? 0.0 : DEFAULT_SHIPPING_FEES['STANDARD'];
 $total = $subtotal + $shippingFee;
 
 require __DIR__ . '/includes/header.php';

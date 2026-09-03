@@ -63,6 +63,13 @@ Uploaded files are stored in `assets/uploads/`; the server blocks PHP execution 
 Built-in themes: Atlas, Sahara, and Zellige. For an existing database, run
 `database/migrations/002_store_settings.sql` before opening the settings page.
 
+## Digital products
+
+The admin product form now supports **Produit numérique** and uploads PDF, ZIP, or EPUB files
+up to 50 MB into private `storage/digital/` storage. Customers see downloads from their account
+after the order is marked `DELIVERED` or the payment status is `PAID`; files are never exposed as
+public URLs. Existing databases need `database/migrations/004_digital_products.sql`.
+
 The commerce feature migration `database/migrations/003_commerce_features.sql` adds coupons,
 delivery zones, reviews, wishlists, and order discounts. It also enables `/track-order.php`,
 `/admin/coupons.php`, `/admin/delivery-zones.php`, and `/admin/reviews.php`. Run both migrations

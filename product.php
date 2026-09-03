@@ -78,6 +78,7 @@ require __DIR__ . '/includes/header.php';
 
         <div class="panel" style="margin-top:1rem; background:#f8fafc;">
             <p style="display:flex; justify-content:space-between;"><span><?= $lang === 'fr' ? 'Disponibilité' : 'التوفر' ?></span><strong><?= (int) $product['stock'] > 0 ? ($lang === 'fr' ? 'En stock' : 'متوفر') : ($lang === 'fr' ? 'Rupture' : 'غير متوفر') ?></strong></p>
+            <p style="display:flex; justify-content:space-between;"><span><?= $lang === 'fr' ? 'Type' : 'النوع' ?></span><strong><?= $product['product_type'] === 'DIGITAL' ? ($lang === 'fr' ? 'Produit numérique' : 'منتج رقمي') : ($lang === 'fr' ? 'Produit physique' : 'منتج مادي') ?></strong></p>
             <p style="display:flex; justify-content:space-between;"><span><?= $lang === 'fr' ? 'Vendeur' : 'البائع' ?></span><strong><?= e(APP_NAME) ?></strong></p>
         </div>
     </div>

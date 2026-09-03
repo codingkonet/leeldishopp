@@ -30,10 +30,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $image = trim((string) ($_POST['image'] ?? ''));
     $isFeatured = isset($_POST['is_featured']) ? 1 : 0;
     $isPublished = isset($_POST['is_published']) ? 1 : 0;
+    $productType = ($_POST['product_type'] ?? 'PHYSICAL') === 'DIGITAL' ? 'DIGITAL' : 'PHYSICAL';
+    $digitalFile = $product['digital_file'] ?? null;
+    $digitalFilename = $product['digital_filename'] ?? null;
 
     try {
         $uploadedImage = upload_brand_asset($_FILES['image_file'] ?? [], 'product');
         $image = $uploadedImage ?: $image;
+        if ($productType === 'DIGITAL') {
+            $uploadedDigital = upload_digital_asset($_FILES['digital_file'] ?? []);
+            if ($uploadedDigital) {
+                $digitalFile = $uploadedDigital['path'];
+                $digitalFilename = $uploadedDigital['filename'];
+            }
+            if (!$digitalFile) throw new RuntimeException('A digital product requires a PDF, ZIP, or EPUB file.');
+        } else {
+            $digitalFile = null;
+            $digitalFilename = null;
+        }
     } catch (Throwable $exception) {
         $error = $exception->getMessage();
     }
@@ -42,12 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = $lang === 'fr' ? 'Merci de remplir tous les champs obligatoires.' : 'يرجى ملء جميع الحقول المطلوبة.';
     } elseif ($error === '') {
         if ($product) {
-            $stmt = $pdo->prepare('UPDATE products SET sku=?, slug=?, name_fr=?, name_ar=?, description_fr=?, description_ar=?, price=?, old_price=?, stock=?, category_id=?, image=?, is_featured=?, is_published=? WHERE id=?');
-            $stmt->execute([$sku, $slug, $nameFr, $nameAr, $descriptionFr, $descriptionAr, $price, $oldPrice, $stock, $categoryId, $image, $isFeatured, $isPublished, $product['id']]);
+            $stmt = $pdo->prepare('UPDATE products SET product_type=?, sku=?, slug=?, name_fr=?, name_ar=?, description_fr=?, description_ar=?, price=?, old_price=?, stock=?, category_id=?, image=?, digital_file=?, digital_filename=?, is_featured=?, is_published=? WHERE id=?');
+            $stmt->execute([$productType, $sku, $slug, $nameFr, $nameAr, $descriptionFr, $descriptionAr, $price, $oldPrice, $stock, $categoryId, $image, $digitalFile, $digitalFilename, $isFeatured, $isPublished, $product['id']]);
             flash('success', $lang === 'fr' ? 'Produit mis à jour.' : 'تم تحديث المنتج.');
         } else {
-            $stmt = $pdo->prepare('INSERT INTO products (sku, slug, name_fr, name_ar, description_fr, description_ar, price, old_price, stock, category_id, image, is_featured, is_published) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)');
-            $stmt->execute([$sku, $slug, $nameFr, $nameAr, $descriptionFr, $descriptionAr, $price, $oldPrice, $stock, $categoryId, $image, $isFeatured, $isPublished]);
+            $stmt = $pdo->prepare('INSERT INTO products (product_type, sku, slug, name_fr, name_ar, description_fr, description_ar, price, old_price, stock, category_id, image, digital_file, digital_filename, is_featured, is_published) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+            $stmt->execute([$productType, $sku, $slug, $nameFr, $nameAr, $descriptionFr, $descriptionAr, $price, $oldPrice, $stock, $categoryId, $image, $digitalFile, $digitalFilename, $isFeatured, $isPublished]);
             flash('success', $lang === 'fr' ? 'Produit créé.' : 'تم إنشاء المنتج.');
         }
         redirect(href_page('admin/products.php'));
@@ -67,6 +81,11 @@ require __DIR__ . '/includes/admin_header.php';
     <?= csrf_field() ?>
     <input type="text" name="sku" required placeholder="SKU" value="<?= e($product['sku'] ?? '') ?>">
     <input type="text" name="slug" required placeholder="Slug" value="<?= e($product['slug'] ?? '') ?>">
+    <select name="product_type" required>
+        <option value="PHYSICAL" <?= ($product['product_type'] ?? 'PHYSICAL') === 'PHYSICAL' ? 'selected' : '' ?>>Produit physique</option>
+        <option value="DIGITAL" <?= ($product['product_type'] ?? 'PHYSICAL') === 'DIGITAL' ? 'selected' : '' ?>>Produit numérique</option>
+    </select>
+    <span class="muted">Les produits numériques sont téléchargeables après livraison ou paiement.</span>
     <input type="text" name="name_fr" required placeholder="<?= $lang === 'fr' ? 'Nom (français)' : 'الاسم (فرنسي)' ?>" value="<?= e($product['name_fr'] ?? '') ?>">
     <input type="text" name="name_ar" required placeholder="<?= $lang === 'fr' ? 'Nom (arabe)' : 'الاسم (عربي)' ?>" value="<?= e($product['name_ar'] ?? '') ?>">
     <textarea name="description_fr" placeholder="<?= $lang === 'fr' ? 'Description (français)' : 'الوصف (فرنسي)' ?>" style="grid-column: span 2;"><?= e($product['description_fr'] ?? '') ?></textarea>
@@ -82,6 +101,7 @@ require __DIR__ . '/includes/admin_header.php';
     </select>
     <input type="text" name="image" placeholder="<?= $lang === 'fr' ? 'URL image (ou téléversez ci-dessous)' : 'رابط الصورة (أو ارفع صورة أدناه)' ?>" style="grid-column: span 2;" value="<?= e($product['image'] ?? '') ?>">
     <label style="grid-column: span 2;">Ou téléverser une image <input type="file" name="image_file" accept="image/png,image/jpeg,image/webp"></label>
+    <label style="grid-column: span 2;">Fichier numérique (PDF, ZIP, EPUB, 50 MB max) <input type="file" name="digital_file" accept="application/pdf,application/zip,.epub"></label>
     <label><input type="checkbox" name="is_featured" <?= !empty($product['is_featured']) ? 'checked' : '' ?>> <?= $lang === 'fr' ? 'Mis en avant' : 'مميز' ?></label>
     <label><input type="checkbox" name="is_published" <?= $product === null || !empty($product['is_published']) ? 'checked' : '' ?>> <?= $lang === 'fr' ? 'Publié' : 'منشور' ?></label>
     <button type="submit" class="btn btn-brand" style="grid-column: span 2;"><?= $lang === 'fr' ? 'Enregistrer' : 'حفظ' ?></button>

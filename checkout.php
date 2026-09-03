@@ -54,7 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'apply
 
                 $coupon = !empty($_SESSION['coupon_code']) ? find_coupon($pdo, (string) $_SESSION['coupon_code'], $subtotal) : null;
                 $discount = $coupon ? coupon_discount($coupon, $subtotal) : 0.0;
-                $shippingFee = $subtotal - $discount >= FREE_SHIPPING_THRESHOLD ? 0.0 : DEFAULT_SHIPPING_FEES[$shippingMethod];
+                $shippingFee = cart_has_digital($pdo) && count(array_filter($lines, static fn (array $line): bool => $line['product']['product_type'] !== 'DIGITAL')) === 0
+                    ? 0.0
+                    : ($subtotal - $discount >= FREE_SHIPPING_THRESHOLD ? 0.0 : DEFAULT_SHIPPING_FEES[$shippingMethod]);
                 $total = $subtotal - $discount + $shippingFee;
                 $orderNumber = generate_order_number();
                 $user = current_user();

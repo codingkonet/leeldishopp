@@ -27,6 +27,7 @@ require __DIR__ . '/includes/admin_header.php';
     <thead>
         <tr>
             <th>SKU</th>
+            <th><?= $lang === 'fr' ? 'Type' : 'النوع' ?></th>
             <th><?= $lang === 'fr' ? 'Nom' : 'الاسم' ?></th>
             <th><?= $lang === 'fr' ? 'Catégorie' : 'الفئة' ?></th>
             <th><?= $lang === 'fr' ? 'Prix' : 'السعر' ?></th>
@@ -39,6 +40,7 @@ require __DIR__ . '/includes/admin_header.php';
         <?php foreach ($products as $product): ?>
             <tr>
                 <td><?= e($product['sku']) ?></td>
+                <td><?= $product['product_type'] === 'DIGITAL' ? 'Numérique' : 'Physique' ?></td>
                 <td><?= e($product['name_fr']) ?></td>
                 <td><?= e($product['category_name'] ?? '—') ?></td>
                 <td><?= format_price((float) $product['price'], $lang) ?></td>
@@ -56,7 +58,7 @@ require __DIR__ . '/includes/admin_header.php';
             </tr>
         <?php endforeach; ?>
         <?php if (empty($products)): ?>
-            <tr><td colspan="7" class="muted" style="text-align:center;"><?= $lang === 'fr' ? 'Aucun produit.' : 'لا توجد منتجات.' ?></td></tr>
+            <tr><td colspan="8" class="muted" style="text-align:center;"><?= $lang === 'fr' ? 'Aucun produit.' : 'لا توجد منتجات.' ?></td></tr>
         <?php endif; ?>
     </tbody>
 </table>

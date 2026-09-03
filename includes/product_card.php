@@ -21,6 +21,7 @@ if (!empty($product['old_price']) && (float) $product['old_price'] > (float) $pr
             <?php endif; ?>
         </div>
         <p>
+            <?php if (($product['product_type'] ?? 'PHYSICAL') === 'DIGITAL'): ?><span class="badge" style="background:#e0f2fe;color:#0369a1;"><?= $lang === 'fr' ? 'Téléchargement' : 'تحميل رقمي' ?></span><?php endif; ?>
             <span class="badge badge-stock"><?= (int) $product['stock'] > 0 ? ($lang === 'fr' ? 'En stock' : 'متوفر') : ($lang === 'fr' ? 'Rupture' : 'غير متوفر') ?></span>
         </p>
         <div style="display:flex; gap:.5rem;">
