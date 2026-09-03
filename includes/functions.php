@@ -89,6 +89,23 @@ function valid_hex_color(string $color, string $fallback): string
     return preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : $fallback;
 }
 
+function whatsapp_number(string $number): string
+{
+    return preg_replace('/[^0-9]/', '', $number) ?? '';
+}
+
+function whatsapp_order_url(string $number, string $orderNumber, array $lines, float $total): ?string
+{
+    $number = whatsapp_number($number);
+    if ($number === '') return null;
+    $message = "Bonjour, je souhaite confirmer ma commande {$orderNumber}.\n\nProduits:\n";
+    foreach ($lines as $line) {
+        $message .= '- ' . ($line['product']['name_fr'] ?? 'Produit') . ' x' . (int) $line['quantity'] . "\n";
+    }
+    $message .= "\nTotal: " . format_price($total) . "\nPaiement: WhatsApp";
+    return 'https://wa.me/' . $number . '?text=' . rawurlencode($message);
+}
+
 function upload_brand_asset(array $upload, string $kind): ?string
 {
     if (($upload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {

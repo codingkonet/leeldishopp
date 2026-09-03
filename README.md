@@ -74,3 +74,11 @@ The commerce feature migration `database/migrations/003_commerce_features.sql` a
 delivery zones, reviews, wishlists, and order discounts. It also enables `/track-order.php`,
 `/admin/coupons.php`, `/admin/delivery-zones.php`, and `/admin/reviews.php`. Run both migrations
 on databases created before these features were added.
+
+## WhatsApp payment
+
+Apply `database/migrations/005_whatsapp_payment.sql` on existing databases. Then open
+`/admin/settings.php`, enter the shop WhatsApp number in international format, for example
+`+212600000000`, and save. Customers can select **WhatsApp** at checkout; the order is saved and
+the confirmation page opens a prefilled WhatsApp message with the order number, items, and total.
+COD remains available separately.

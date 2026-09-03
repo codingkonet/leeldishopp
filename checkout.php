@@ -35,11 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'apply
         $shippingMethod = in_array($_POST['shipping_method'] ?? '', ['STANDARD', 'EXPRESS', 'PICKUP'], true)
             ? $_POST['shipping_method']
             : 'STANDARD';
+        $paymentMethod = ($_POST['payment_method'] ?? 'COD') === 'WHATSAPP' ? 'WHATSAPP' : 'COD';
 
         if (strlen($customerName) < 2 || strlen($customerPhone) < 8 || strlen($deliveryAddress) < 8 || $city === '') {
             $error = $lang === 'fr' ? 'Merci de compléter tous les champs obligatoires.' : 'يرجى ملء جميع الحقول المطلوبة.';
         } elseif ($customerEmail && !filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
             $error = $lang === 'fr' ? 'Email invalide.' : 'البريد الإلكتروني غير صالح.';
+        } elseif ($paymentMethod === 'WHATSAPP' && whatsapp_number((string) ($settings['whatsapp_number'] ?? '')) === '') {
+            $error = $lang === 'fr' ? 'Le paiement WhatsApp n’est pas configuré par la boutique.' : 'الدفع عبر واتساب غير مُعد من طرف المتجر.';
         } else {
             try {
                 $pdo->beginTransaction();
@@ -61,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'apply
                 $orderNumber = generate_order_number();
                 $user = current_user();
 
-                $orderStmt = $pdo->prepare('INSERT INTO orders (order_number, user_id, customer_name, customer_phone, customer_email, delivery_address, city, region, postal_code, delivery_notes, shipping_method, subtotal, discount, coupon_code, shipping_cost, total) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+                $orderStmt = $pdo->prepare('INSERT INTO orders (order_number, user_id, customer_name, customer_phone, customer_email, delivery_address, city, region, postal_code, delivery_notes, shipping_method, subtotal, discount, coupon_code, shipping_cost, total, payment_method) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
                 $orderStmt->execute([
                     $orderNumber,
                     $user['id'] ?? null,
@@ -79,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'apply
                     $coupon['code'] ?? null,
                     $shippingFee,
                     $total,
+                    $paymentMethod,
                 ]);
                 $orderId = (int) $pdo->lastInsertId();
 
@@ -98,7 +102,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'apply
                 send_order_email($emailOrder);
                 notify_admin_new_order($emailOrder);
 
-                redirect(href_page('order-confirmation.php') . '?order=' . urlencode($orderNumber) . '&total=' . urlencode((string) $total));
+                $whatsappUrl = $paymentMethod === 'WHATSAPP' ? whatsapp_order_url((string) $settings['whatsapp_number'], $orderNumber, $lines, $total) : null;
+                redirect(href_page('order-confirmation.php') . '?order=' . urlencode($orderNumber) . '&total=' . urlencode((string) $total) . ($whatsappUrl ? '&whatsapp=' . urlencode($whatsappUrl) : ''));
             } catch (Throwable $exception) {
                 $pdo->rollBack();
                 $error = $exception->getMessage();
@@ -142,6 +147,12 @@ require __DIR__ . '/includes/header.php';
         <div class="panel" style="background:#ecfdf5;">
             <strong>COD — <?= e(t('secureCod')) ?></strong>
             <p class="muted"><?= e(t('codInfo')) ?></p>
+        </div>
+
+        <div class="panel">
+            <h2><?= $lang === 'fr' ? 'Mode de paiement' : 'طريقة الدفع' ?></h2>
+            <label style="display:block; padding:.8rem; border:1px solid var(--border); border-radius:.8rem; margin-top:.6rem;"><input type="radio" name="payment_method" value="COD" checked> <?= $lang === 'fr' ? 'Paiement à la livraison (COD)' : 'الدفع عند الاستلام' ?></label>
+            <label style="display:block; padding:.8rem; border:1px solid var(--border); border-radius:.8rem; margin-top:.6rem;"><input type="radio" name="payment_method" value="WHATSAPP"> WhatsApp — <?= $lang === 'fr' ? 'confirmer avec la boutique' : 'تأكيد الطلب مع المتجر' ?></label>
         </div>
     </div>
 

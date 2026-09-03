@@ -3,6 +3,7 @@ require __DIR__ . '/includes/bootstrap.php';
 
 $orderNumber = trim((string) ($_GET['order'] ?? ''));
 $total = isset($_GET['total']) ? (float) $_GET['total'] : null;
+$whatsappUrl = filter_var($_GET['whatsapp'] ?? '', FILTER_VALIDATE_URL) ? (string) $_GET['whatsapp'] : null;
 
 require __DIR__ . '/includes/header.php';
 ?>
@@ -21,6 +22,7 @@ require __DIR__ . '/includes/header.php';
     <div style="display:flex; justify-content:center; gap:1rem; margin-top:1.5rem;">
         <a href="<?= href_page('index.php') ?>" class="btn btn-dark"><?= $lang === 'fr' ? 'Retour à l’accueil' : 'العودة للرئيسية' ?></a>
         <a href="<?= href_page('account/orders.php') ?>" class="btn btn-outline"><?= $lang === 'fr' ? 'Suivi de commande' : 'تتبع الطلب' ?></a>
+        <?php if ($whatsappUrl): ?><a href="<?= e($whatsappUrl) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-brand">WhatsApp</a><?php endif; ?>
     </div>
 </div>
 

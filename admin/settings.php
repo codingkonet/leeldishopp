@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $deliveryFee = max(0, (float) ($_POST['delivery_fee'] ?? 25));
     $freeShipping = max(0, (float) ($_POST['free_shipping_threshold'] ?? 500));
     $phone = trim((string) ($_POST['phone'] ?? '')) ?: null;
+    $whatsappNumber = trim((string) ($_POST['whatsapp_number'] ?? '')) ?: null;
     $address = trim((string) ($_POST['address'] ?? '')) ?: null;
     $logoUrl = trim((string) ($_POST['logo_url'] ?? '')) ?: null;
     $faviconUrl = trim((string) ($_POST['favicon_url'] ?? '')) ?: null;
@@ -35,8 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $logoUrl = isset($_POST['remove_logo']) ? null : ($uploadedLogo ?: ($logoUrl ?: ($settings['logo_url'] ?? null)));
             $faviconUrl = isset($_POST['remove_favicon']) ? null : ($uploadedFavicon ?: ($faviconUrl ?: ($settings['favicon_url'] ?? null)));
 
-            $stmt = $pdo->prepare('UPDATE settings SET shop_name=?, email=?, phone=?, address=?, currency=?, delivery_fee=?, free_shipping_threshold=?, slogan_fr=?, slogan_ar=?, primary_color=?, accent_color=?, logo_url=?, favicon_url=?, theme_name=?, maintenance_mode=?, seo_title=?, seo_description=? WHERE id = ?');
-            $stmt->execute([$shopName, $email, $phone, $address, $currency ?: 'MAD', $deliveryFee, $freeShipping, $sloganFr, $sloganAr, $primaryColor, $accentColor, $logoUrl, $faviconUrl, $themeName, $maintenance, $seoTitle, $seoDescription, $settings['id'] ?? 1]);
+            $stmt = $pdo->prepare('UPDATE settings SET shop_name=?, email=?, phone=?, whatsapp_number=?, address=?, currency=?, delivery_fee=?, free_shipping_threshold=?, slogan_fr=?, slogan_ar=?, primary_color=?, accent_color=?, logo_url=?, favicon_url=?, theme_name=?, maintenance_mode=?, seo_title=?, seo_description=? WHERE id = ?');
+            $stmt->execute([$shopName, $email, $phone, $whatsappNumber, $address, $currency ?: 'MAD', $deliveryFee, $freeShipping, $sloganFr, $sloganAr, $primaryColor, $accentColor, $logoUrl, $faviconUrl, $themeName, $maintenance, $seoTitle, $seoDescription, $settings['id'] ?? 1]);
             flash('success', $lang === 'fr' ? 'Paramètres enregistrés.' : 'تم حفظ الإعدادات.');
             redirect(href_page('admin/settings.php'));
         } catch (Throwable $exception) {
@@ -66,6 +67,7 @@ require __DIR__ . '/includes/admin_header.php';
     <label><input type="checkbox" name="remove_logo"> Supprimer le logo actuel</label>
     <label><input type="checkbox" name="remove_favicon"> Supprimer le favicon actuel</label>
     <input type="tel" name="phone" value="<?= e($settings['phone'] ?? '') ?>" placeholder="Téléphone">
+    <input type="tel" name="whatsapp_number" value="<?= e($settings['whatsapp_number'] ?? '') ?>" placeholder="WhatsApp (ex: +212600000000)">
     <input type="text" name="address" value="<?= e($settings['address'] ?? '') ?>" placeholder="Adresse">
 
     <h2 style="grid-column:span 2;"><?= $lang === 'fr' ? 'Apparence' : 'المظهر' ?></h2>

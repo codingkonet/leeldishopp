@@ -109,6 +109,7 @@ CREATE TABLE IF NOT EXISTS settings (
     shop_name VARCHAR(120) NOT NULL DEFAULT 'LebeldiShop',
     email VARCHAR(190) NOT NULL DEFAULT 'shop@lebeldishop.com',
     phone VARCHAR(30) NULL,
+    whatsapp_number VARCHAR(30) NULL,
     address VARCHAR(255) NULL,
     currency VARCHAR(10) NOT NULL DEFAULT 'MAD',
     delivery_fee DECIMAL(10,2) NOT NULL DEFAULT 25.00,
