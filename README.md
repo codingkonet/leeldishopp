@@ -50,3 +50,12 @@ trademarks, descriptions, or prices without permission.
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## PHP/MySQL settings and themes
+
+The PHP version includes `/setup.php` for installation. After installation, administrators can
+open `/admin/settings.php` to edit the shop title, French and Arabic slogans, logo, favicon,
+colors, currency, shipping options, SEO fields, maintenance mode, and active theme.
+
+Built-in themes: Atlas, Sahara, and Zellige. For an existing database, run
+`database/migrations/002_store_settings.sql` before opening the settings page.

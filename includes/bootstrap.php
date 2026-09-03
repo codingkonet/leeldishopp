@@ -14,6 +14,7 @@ $dict = load_dictionary($lang);
 $isRtl = $lang === 'ar';
 try {
 	$pdo = get_pdo();
+	$settings = store_settings($pdo);
 } catch (Throwable $exception) {
 	http_response_code(503);
 	$setupUrl = base_path() . '/setup.php';

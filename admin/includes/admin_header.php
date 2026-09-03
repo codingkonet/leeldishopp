@@ -23,6 +23,7 @@ $user = current_user();
         <a href="<?= href_page('admin/products.php') ?>"><?= $lang === 'fr' ? 'Produits' : 'المنتجات' ?></a>
         <a href="<?= href_page('admin/import-products.php') ?>"><?= $lang === 'fr' ? 'Importer produits' : 'استيراد المنتجات' ?></a>
         <a href="<?= href_page('admin/extensions.php') ?>"><?= $lang === 'fr' ? 'Plugins et thèmes' : 'الإضافات والقوالب' ?></a>
+        <a href="<?= href_page('admin/settings.php') ?>"><?= $lang === 'fr' ? 'Paramètres' : 'الإعدادات' ?></a>
         <a href="<?= href_page('account/logout.php') ?>" style="margin-top:1.5rem; border-top:1px solid rgba(255,255,255,.1); padding-top:1rem;"><?= e(t('signOut')) ?></a>
     </nav>
     <main class="admin-main">

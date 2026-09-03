@@ -1,0 +1,4 @@
+/* Built-in theme: Zellige */
+:root { --brand: #087f8c; --dark: #12343b; --bg: #f2fbfa; --border: #c9e8e5; }
+.hero { background: linear-gradient(120deg, #12343b, #087f8c, #d9a84b); }
+.site-header { background: #f2fbfa; }

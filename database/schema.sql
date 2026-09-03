@@ -107,7 +107,17 @@ CREATE TABLE IF NOT EXISTS settings (
     address VARCHAR(255) NULL,
     currency VARCHAR(10) NOT NULL DEFAULT 'MAD',
     delivery_fee DECIMAL(10,2) NOT NULL DEFAULT 25.00,
-    free_shipping_threshold DECIMAL(10,2) NOT NULL DEFAULT 500.00
+    free_shipping_threshold DECIMAL(10,2) NOT NULL DEFAULT 500.00,
+    slogan_fr VARCHAR(255) NOT NULL DEFAULT 'Le meilleur du Maroc, chez vous',
+    slogan_ar VARCHAR(255) NOT NULL DEFAULT 'أفضل المنتجات المغربية، إلى منزلك',
+    primary_color VARCHAR(7) NOT NULL DEFAULT '#b47d2d',
+    accent_color VARCHAR(7) NOT NULL DEFAULT '#1f2937',
+    logo_url VARCHAR(500) NULL,
+    favicon_url VARCHAR(500) NULL,
+    theme_name VARCHAR(40) NOT NULL DEFAULT 'atlas',
+    maintenance_mode TINYINT(1) NOT NULL DEFAULT 0,
+    seo_title VARCHAR(255) NULL,
+    seo_description VARCHAR(500) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;

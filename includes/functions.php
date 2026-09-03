@@ -67,6 +67,28 @@ function t(string $key): string
     return $dict[$key] ?? $key;
 }
 
+function store_settings(PDO $pdo): array
+{
+    $settings = $pdo->query('SELECT * FROM settings ORDER BY id LIMIT 1')->fetch();
+    return $settings ?: [
+        'shop_name' => APP_NAME,
+        'email' => 'shop@lebeldishop.com',
+        'currency' => DEFAULT_CURRENCY,
+        'delivery_fee' => DEFAULT_SHIPPING_FEES['STANDARD'],
+        'free_shipping_threshold' => FREE_SHIPPING_THRESHOLD,
+        'slogan_fr' => 'Le meilleur du Maroc, chez vous',
+        'slogan_ar' => 'أفضل المنتجات المغربية، إلى منزلك',
+        'primary_color' => '#b47d2d',
+        'accent_color' => '#1f2937',
+        'theme_name' => 'atlas',
+    ];
+}
+
+function valid_hex_color(string $color, string $fallback): string
+{
+    return preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : $fallback;
+}
+
 function format_price(float $value, string $lang = 'fr'): string
 {
     $formatted = number_format($value, 0, ',', ' ');

@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e(APP_NAME) ?> — <?= e(t('slogan')) ?></title>
+    <title><?= e($settings['seo_title'] ?: $settings['shop_name']) ?></title>
     <link rel="stylesheet" href="<?= href_asset('assets/css/style.css') ?>">
+    <?php $themeName = preg_match('/^[a-z0-9-]+$/', (string) ($settings['theme_name'] ?? '')) ? $settings['theme_name'] : 'atlas'; ?>
+    <link rel="stylesheet" href="<?= href_asset('themes/' . $themeName . '.css') ?>">
+        <?php if (!empty($settings['favicon_url']) && filter_var($settings['favicon_url'], FILTER_VALIDATE_URL)): ?>
+            <link rel="icon" href="<?= e($settings['favicon_url']) ?>">
+        <?php endif; ?>
 </head>
-<body class="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+<body class="<?= $isRtl ? 'rtl' : 'ltr' ?>" style="--brand:<?= e(valid_hex_color((string) ($settings['primary_color'] ?? ''), '#b47d2d')) ?>;--dark:<?= e(valid_hex_color((string) ($settings['accent_color'] ?? ''), '#1f2937')) ?>;">
 <header class="site-header">
     <div class="container header-inner">
         <a href="<?= href_page('index.php') ?>" class="brand">
             <span class="brand-mark">L</span>
             <span>
-                <span class="brand-name"><?= e(APP_NAME) ?></span>
-                <small class="brand-slogan"><?= e(t('slogan')) ?></small>
+                <span class="brand-name"><?= e($settings['shop_name'] ?? APP_NAME) ?></span>
+                <small class="brand-slogan"><?= e($lang === 'fr' ? ($settings['slogan_fr'] ?? t('slogan')) : ($settings['slogan_ar'] ?? t('slogan'))) ?></small>
             </span>
         </a>
 

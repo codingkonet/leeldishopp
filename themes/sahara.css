@@ -1,0 +1,4 @@
+/* Built-in theme: Sahara */
+:root { --brand: #c56b3a; --dark: #3e2d27; --bg: #fffaf3; --border: #eadbc9; }
+.hero { background: linear-gradient(120deg, #3e2d27, #805a42, #c56b3a); }
+.site-header { background: #fffaf3; }
