@@ -57,5 +57,8 @@ The PHP version includes `/setup.php` for installation. After installation, admi
 open `/admin/settings.php` to edit the shop title, French and Arabic slogans, logo, favicon,
 colors, currency, shipping options, SEO fields, maintenance mode, and active theme.
 
+Logo and favicon can now be uploaded directly from the settings page as PNG, JPG, WEBP, or ICO.
+Uploaded files are stored in `assets/uploads/`; the server blocks PHP execution in that folder.
+
 Built-in themes: Atlas, Sahara, and Zellige. For an existing database, run
 `database/migrations/002_store_settings.sql` before opening the settings page.

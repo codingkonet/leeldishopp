@@ -89,6 +89,38 @@ function valid_hex_color(string $color, string $fallback): string
     return preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : $fallback;
 }
 
+function upload_brand_asset(array $upload, string $kind): ?string
+{
+    if (($upload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+    if (($upload['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK || ($upload['size'] ?? 0) > 5 * 1024 * 1024) {
+        throw new RuntimeException('The image upload failed or exceeds the 5 MB limit.');
+    }
+
+    $imageInfo = @getimagesize((string) $upload['tmp_name']);
+    $allowed = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/webp' => 'webp', 'image/x-icon' => 'ico', 'image/vnd.microsoft.icon' => 'ico'];
+    $mime = $imageInfo['mime'] ?? '';
+    if (!$imageInfo || !isset($allowed[$mime])) {
+        throw new RuntimeException("The {$kind} must be a PNG, JPG, WEBP, or ICO image.");
+    }
+    if ($kind === 'favicon' && (($imageInfo[0] ?? 0) > 512 || ($imageInfo[1] ?? 0) > 512)) {
+        throw new RuntimeException('The favicon must be no larger than 512x512 pixels.');
+    }
+
+    $directory = dirname(__DIR__) . '/assets/uploads';
+    if (!is_dir($directory) && !mkdir($directory, 0750, true) && !is_dir($directory)) {
+        throw new RuntimeException('Cannot create the upload directory.');
+    }
+    $filename = $kind . '-' . bin2hex(random_bytes(12)) . '.' . $allowed[$mime];
+    $destination = $directory . '/' . $filename;
+    if (!move_uploaded_file((string) $upload['tmp_name'], $destination)) {
+        throw new RuntimeException('Cannot save the uploaded image.');
+    }
+
+    return href_asset('assets/uploads/' . $filename);
+}
+
 function format_price(float $value, string $lang = 'fr'): string
 {
     $formatted = number_format($value, 0, ',', ' ');

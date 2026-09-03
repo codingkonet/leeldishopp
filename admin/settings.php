@@ -29,10 +29,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($shopName === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || $sloganFr === '' || $sloganAr === '') {
         $error = $lang === 'fr' ? 'Vérifiez le nom, l’email et les slogans.' : 'تحقق من الاسم والبريد والشعارات.';
     } else {
-        $stmt = $pdo->prepare('UPDATE settings SET shop_name=?, email=?, phone=?, address=?, currency=?, delivery_fee=?, free_shipping_threshold=?, slogan_fr=?, slogan_ar=?, primary_color=?, accent_color=?, logo_url=?, favicon_url=?, theme_name=?, maintenance_mode=?, seo_title=?, seo_description=? WHERE id = ?');
-        $stmt->execute([$shopName, $email, $phone, $address, $currency ?: 'MAD', $deliveryFee, $freeShipping, $sloganFr, $sloganAr, $primaryColor, $accentColor, $logoUrl, $faviconUrl, $themeName, $maintenance, $seoTitle, $seoDescription, $settings['id'] ?? 1]);
-        flash('success', $lang === 'fr' ? 'Paramètres enregistrés.' : 'تم حفظ الإعدادات.');
-        redirect(href_page('admin/settings.php'));
+        try {
+            $uploadedLogo = upload_brand_asset($_FILES['logo_file'] ?? [], 'logo');
+            $uploadedFavicon = upload_brand_asset($_FILES['favicon_file'] ?? [], 'favicon');
+            $logoUrl = isset($_POST['remove_logo']) ? null : ($uploadedLogo ?: ($logoUrl ?: ($settings['logo_url'] ?? null)));
+            $faviconUrl = isset($_POST['remove_favicon']) ? null : ($uploadedFavicon ?: ($faviconUrl ?: ($settings['favicon_url'] ?? null)));
+
+            $stmt = $pdo->prepare('UPDATE settings SET shop_name=?, email=?, phone=?, address=?, currency=?, delivery_fee=?, free_shipping_threshold=?, slogan_fr=?, slogan_ar=?, primary_color=?, accent_color=?, logo_url=?, favicon_url=?, theme_name=?, maintenance_mode=?, seo_title=?, seo_description=? WHERE id = ?');
+            $stmt->execute([$shopName, $email, $phone, $address, $currency ?: 'MAD', $deliveryFee, $freeShipping, $sloganFr, $sloganAr, $primaryColor, $accentColor, $logoUrl, $faviconUrl, $themeName, $maintenance, $seoTitle, $seoDescription, $settings['id'] ?? 1]);
+            flash('success', $lang === 'fr' ? 'Paramètres enregistrés.' : 'تم حفظ الإعدادات.');
+            redirect(href_page('admin/settings.php'));
+        } catch (Throwable $exception) {
+            $error = $exception->getMessage();
+        }
     }
 }
 
@@ -43,15 +52,19 @@ require __DIR__ . '/includes/admin_header.php';
 <p class="muted"><?= $lang === 'fr' ? 'Modifiez l’identité et les options principales de votre boutique.' : 'عدّل هوية المتجر وخياراته الرئيسية.' ?></p>
 <?php if ($error): ?><div class="alert alert-error"><?= e($error) ?></div><?php endif; ?>
 
-<form action="<?= href_page('admin/settings.php') ?>" method="post" class="panel form-grid cols-2" style="margin-top:1rem;">
+<form action="<?= href_page('admin/settings.php') ?>" method="post" enctype="multipart/form-data" class="panel form-grid cols-2" style="margin-top:1rem;">
     <?= csrf_field() ?>
     <h2 style="grid-column:span 2;"><?= $lang === 'fr' ? 'Identité' : 'الهوية' ?></h2>
     <input type="text" name="shop_name" required value="<?= e($settings['shop_name'] ?? '') ?>" placeholder="<?= $lang === 'fr' ? 'Titre de la boutique' : 'عنوان المتجر' ?>">
     <input type="email" name="email" required value="<?= e($settings['email'] ?? '') ?>" placeholder="Email">
     <input type="text" name="slogan_fr" required value="<?= e($settings['slogan_fr'] ?? '') ?>" placeholder="Slogan français">
     <input type="text" name="slogan_ar" required value="<?= e($settings['slogan_ar'] ?? '') ?>" placeholder="الشعار بالعربية">
-    <input type="url" name="logo_url" value="<?= e($settings['logo_url'] ?? '') ?>" placeholder="URL du logo">
-    <input type="url" name="favicon_url" value="<?= e($settings['favicon_url'] ?? '') ?>" placeholder="URL du favicon">
+    <label>Logo depuis votre ordinateur <input type="file" name="logo_file" accept="image/png,image/jpeg,image/webp,image/x-icon"></label>
+    <label>Favicon depuis votre ordinateur <input type="file" name="favicon_file" accept="image/png,image/jpeg,image/webp,image/x-icon"></label>
+    <input type="url" name="logo_url" value="<?= e($settings['logo_url'] ?? '') ?>" placeholder="Ou URL du logo">
+    <input type="url" name="favicon_url" value="<?= e($settings['favicon_url'] ?? '') ?>" placeholder="Ou URL du favicon">
+    <label><input type="checkbox" name="remove_logo"> Supprimer le logo actuel</label>
+    <label><input type="checkbox" name="remove_favicon"> Supprimer le favicon actuel</label>
     <input type="tel" name="phone" value="<?= e($settings['phone'] ?? '') ?>" placeholder="Téléphone">
     <input type="text" name="address" value="<?= e($settings['address'] ?? '') ?>" placeholder="Adresse">
 

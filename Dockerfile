@@ -12,6 +12,7 @@ COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && mkdir -p /var/www/html/plugins /var/www/html/themes \
-    && chmod -R 775 /var/www/html/plugins /var/www/html/themes
+    && mkdir -p /var/www/html/assets/uploads \
+    && chmod -R 775 /var/www/html/plugins /var/www/html/themes /var/www/html/assets/uploads
 
 EXPOSE 80
