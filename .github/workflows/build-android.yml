@@ -1,6 +1,11 @@
 name: Build LebeldiShop Android APK
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "android/**"
+      - ".github/workflows/build-android.yml"
   workflow_dispatch:
     inputs:
       store_url:
