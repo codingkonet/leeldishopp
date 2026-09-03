@@ -22,6 +22,9 @@ $user = current_user();
         <a href="<?= href_page('admin/orders.php') ?>"><?= $lang === 'fr' ? 'Commandes' : 'الطلبات' ?></a>
         <a href="<?= href_page('admin/products.php') ?>"><?= $lang === 'fr' ? 'Produits' : 'المنتجات' ?></a>
         <a href="<?= href_page('admin/import-products.php') ?>"><?= $lang === 'fr' ? 'Importer produits' : 'استيراد المنتجات' ?></a>
+        <a href="<?= href_page('admin/coupons.php') ?>"><?= $lang === 'fr' ? 'Coupons' : 'القسائم' ?></a>
+        <a href="<?= href_page('admin/delivery-zones.php') ?>"><?= $lang === 'fr' ? 'Livraison' : 'التوصيل' ?></a>
+        <a href="<?= href_page('admin/reviews.php') ?>"><?= $lang === 'fr' ? 'Avis clients' : 'آراء العملاء' ?></a>
         <a href="<?= href_page('admin/extensions.php') ?>"><?= $lang === 'fr' ? 'Plugins et thèmes' : 'الإضافات والقوالب' ?></a>
         <a href="<?= href_page('admin/settings.php') ?>"><?= $lang === 'fr' ? 'Paramètres' : 'الإعدادات' ?></a>
         <a href="<?= href_page('account/logout.php') ?>" style="margin-top:1.5rem; border-top:1px solid rgba(255,255,255,.1); padding-top:1rem;"><?= e(t('signOut')) ?></a>

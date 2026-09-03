@@ -31,9 +31,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $isFeatured = isset($_POST['is_featured']) ? 1 : 0;
     $isPublished = isset($_POST['is_published']) ? 1 : 0;
 
-    if ($sku === '' || $slug === '' || $nameFr === '' || $nameAr === '' || $price <= 0 || $categoryId <= 0 || $image === '') {
+    try {
+        $uploadedImage = upload_brand_asset($_FILES['image_file'] ?? [], 'product');
+        $image = $uploadedImage ?: $image;
+    } catch (Throwable $exception) {
+        $error = $exception->getMessage();
+    }
+
+    if ($error === '' && ($sku === '' || $slug === '' || $nameFr === '' || $nameAr === '' || $price <= 0 || $categoryId <= 0 || $image === '')) {
         $error = $lang === 'fr' ? 'Merci de remplir tous les champs obligatoires.' : 'يرجى ملء جميع الحقول المطلوبة.';
-    } else {
+    } elseif ($error === '') {
         if ($product) {
             $stmt = $pdo->prepare('UPDATE products SET sku=?, slug=?, name_fr=?, name_ar=?, description_fr=?, description_ar=?, price=?, old_price=?, stock=?, category_id=?, image=?, is_featured=?, is_published=? WHERE id=?');
             $stmt->execute([$sku, $slug, $nameFr, $nameAr, $descriptionFr, $descriptionAr, $price, $oldPrice, $stock, $categoryId, $image, $isFeatured, $isPublished, $product['id']]);
@@ -56,7 +63,7 @@ require __DIR__ . '/includes/admin_header.php';
 
 <?php if ($error): ?><div class="alert alert-error"><?= e($error) ?></div><?php endif; ?>
 
-<form action="<?= href_page('admin/product-form.php' . ($productId ? '?id=' . $productId : '')) ?>" method="post" class="panel form-grid cols-2" style="margin-top:1rem;">
+<form action="<?= href_page('admin/product-form.php' . ($productId ? '?id=' . $productId : '')) ?>" method="post" enctype="multipart/form-data" class="panel form-grid cols-2" style="margin-top:1rem;">
     <?= csrf_field() ?>
     <input type="text" name="sku" required placeholder="SKU" value="<?= e($product['sku'] ?? '') ?>">
     <input type="text" name="slug" required placeholder="Slug" value="<?= e($product['slug'] ?? '') ?>">
@@ -73,7 +80,8 @@ require __DIR__ . '/includes/admin_header.php';
             <option value="<?= (int) $category['id'] ?>" <?= (int) ($product['category_id'] ?? 0) === (int) $category['id'] ? 'selected' : '' ?>><?= e($category['name_fr']) ?></option>
         <?php endforeach; ?>
     </select>
-    <input type="text" name="image" required placeholder="<?= $lang === 'fr' ? 'URL image' : 'رابط الصورة' ?>" style="grid-column: span 2;" value="<?= e($product['image'] ?? '') ?>">
+    <input type="text" name="image" placeholder="<?= $lang === 'fr' ? 'URL image (ou téléversez ci-dessous)' : 'رابط الصورة (أو ارفع صورة أدناه)' ?>" style="grid-column: span 2;" value="<?= e($product['image'] ?? '') ?>">
+    <label style="grid-column: span 2;">Ou téléverser une image <input type="file" name="image_file" accept="image/png,image/jpeg,image/webp"></label>
     <label><input type="checkbox" name="is_featured" <?= !empty($product['is_featured']) ? 'checked' : '' ?>> <?= $lang === 'fr' ? 'Mis en avant' : 'مميز' ?></label>
     <label><input type="checkbox" name="is_published" <?= $product === null || !empty($product['is_published']) ? 'checked' : '' ?>> <?= $lang === 'fr' ? 'Publié' : 'منشور' ?></label>
     <button type="submit" class="btn btn-brand" style="grid-column: span 2;"><?= $lang === 'fr' ? 'Enregistrer' : 'حفظ' ?></button>

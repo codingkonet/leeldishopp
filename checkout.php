@@ -4,8 +4,21 @@ require __DIR__ . '/includes/bootstrap.php';
 $lines = cart_lines($pdo);
 $subtotal = cart_subtotal($pdo);
 $error = '';
+$coupon = !empty($_SESSION['coupon_code']) ? find_coupon($pdo, (string) $_SESSION['coupon_code'], $subtotal) : null;
+$discount = $coupon ? coupon_discount($coupon, $subtotal) : 0.0;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'apply_coupon') {
+    verify_csrf();
+    $candidate = find_coupon($pdo, (string) ($_POST['coupon_code'] ?? ''), $subtotal);
+    if (!$candidate) {
+        $error = $lang === 'fr' ? 'Code promo invalide ou expiré.' : 'رمز الخصم غير صالح أو منتهي.';
+    } else {
+        $_SESSION['coupon_code'] = strtoupper(trim((string) $_POST['coupon_code']));
+        redirect(href_page('checkout.php'));
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'apply_coupon') {
     verify_csrf();
 
     if (empty($lines)) {
@@ -39,12 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
-                $shippingFee = $subtotal >= FREE_SHIPPING_THRESHOLD ? 0.0 : DEFAULT_SHIPPING_FEES[$shippingMethod];
-                $total = $subtotal + $shippingFee;
+                $coupon = !empty($_SESSION['coupon_code']) ? find_coupon($pdo, (string) $_SESSION['coupon_code'], $subtotal) : null;
+                $discount = $coupon ? coupon_discount($coupon, $subtotal) : 0.0;
+                $shippingFee = $subtotal - $discount >= FREE_SHIPPING_THRESHOLD ? 0.0 : DEFAULT_SHIPPING_FEES[$shippingMethod];
+                $total = $subtotal - $discount + $shippingFee;
                 $orderNumber = generate_order_number();
                 $user = current_user();
 
-                $orderStmt = $pdo->prepare('INSERT INTO orders (order_number, user_id, customer_name, customer_phone, customer_email, delivery_address, city, region, postal_code, delivery_notes, shipping_method, subtotal, shipping_cost, total) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+                $orderStmt = $pdo->prepare('INSERT INTO orders (order_number, user_id, customer_name, customer_phone, customer_email, delivery_address, city, region, postal_code, delivery_notes, shipping_method, subtotal, discount, coupon_code, shipping_cost, total) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
                 $orderStmt->execute([
                     $orderNumber,
                     $user['id'] ?? null,
@@ -58,6 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $deliveryNotes,
                     $shippingMethod,
                     $subtotal,
+                    $discount,
+                    $coupon['code'] ?? null,
                     $shippingFee,
                     $total,
                 ]);
@@ -67,9 +84,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 foreach ($lines as $line) {
                     $itemStmt->execute([$orderId, $line['product']['id'], $line['quantity'], $line['product']['price']]);
                 }
+                if ($coupon) {
+                    $couponStmt = $pdo->prepare('UPDATE coupons SET used_count = used_count + 1 WHERE id = ?');
+                    $couponStmt->execute([$coupon['id']]);
+                }
 
                 $pdo->commit();
                 cart_clear();
+                unset($_SESSION['coupon_code']);
+                $emailOrder = ['order_number' => $orderNumber, 'customer_name' => $customerName, 'customer_email' => $customerEmail, 'total' => $total];
+                send_order_email($emailOrder);
+                notify_admin_new_order($emailOrder);
 
                 redirect(href_page('order-confirmation.php') . '?order=' . urlencode($orderNumber) . '&total=' . urlencode((string) $total));
             } catch (Throwable $exception) {
@@ -123,7 +148,11 @@ require __DIR__ . '/includes/header.php';
         <?php foreach ($lines as $line): $p = $line['product']; ?>
             <p style="display:flex; justify-content:space-between;"><span><?= e($lang === 'fr' ? $p['name_fr'] : $p['name_ar']) ?> x<?= (int) $line['quantity'] ?></span><span><?= format_price($line['lineTotal'], $lang) ?></span></p>
         <?php endforeach; ?>
-        <p style="display:flex; justify-content:space-between; font-weight:800; border-top:1px solid var(--border); padding-top:.6rem;"><span><?= e(t('total')) ?></span><span><?= format_price($subtotal, $lang) ?> + <?= $lang === 'fr' ? 'livraison' : 'التوصيل' ?></span></p>
+        <form action="<?= href_page('checkout.php') ?>" method="post" style="display:flex; gap:.5rem; margin:1rem 0;">
+            <?= csrf_field() ?><input type="hidden" name="action" value="apply_coupon"><input name="coupon_code" placeholder="<?= $lang === 'fr' ? 'Code promo' : 'رمز الخصم' ?>" value="<?= e($_SESSION['coupon_code'] ?? '') ?>"><button class="btn btn-outline" type="submit">OK</button>
+        </form>
+        <?php if ($coupon): ?><p style="display:flex; justify-content:space-between; color:#047857;"><span>Coupon <?= e($coupon['code']) ?></span><span>-<?= format_price($discount, $lang) ?></span></p><?php endif; ?>
+        <p style="display:flex; justify-content:space-between; font-weight:800; border-top:1px solid var(--border); padding-top:.6rem;"><span><?= e(t('total')) ?></span><span><?= format_price($subtotal - $discount, $lang) ?> + <?= $lang === 'fr' ? 'livraison' : 'التوصيل' ?></span></p>
         <?php if ($error): ?><div class="alert alert-error"><?= e($error) ?></div><?php endif; ?>
         <button type="submit" class="btn btn-brand" style="width:100%; justify-content:center; margin-top:1rem;" <?= empty($lines) ? 'disabled' : '' ?>><?= $lang === 'fr' ? 'Confirmer la commande' : 'تأكيد الطلب' ?></button>
     </aside>

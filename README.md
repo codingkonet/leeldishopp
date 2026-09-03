@@ -62,3 +62,8 @@ Uploaded files are stored in `assets/uploads/`; the server blocks PHP execution 
 
 Built-in themes: Atlas, Sahara, and Zellige. For an existing database, run
 `database/migrations/002_store_settings.sql` before opening the settings page.
+
+The commerce feature migration `database/migrations/003_commerce_features.sql` adds coupons,
+delivery zones, reviews, wishlists, and order discounts. It also enables `/track-order.php`,
+`/admin/coupons.php`, `/admin/delivery-zones.php`, and `/admin/reviews.php`. Run both migrations
+on databases created before these features were added.

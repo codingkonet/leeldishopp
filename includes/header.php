@@ -4,11 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e($settings['seo_title'] ?: $settings['shop_name']) ?></title>
+    <meta name="description" content="<?= e($settings['seo_description'] ?? 'Marketplace marocaine pour les meilleurs produits et services du Maroc.') ?>">
+    <link rel="canonical" href="<?= e(APP_URL . ($_SERVER['REQUEST_URI'] ?? '/')) ?>">
     <link rel="stylesheet" href="<?= href_asset('assets/css/style.css') ?>">
     <?php $themeName = preg_match('/^[a-z0-9-]+$/', (string) ($settings['theme_name'] ?? '')) ? $settings['theme_name'] : 'atlas'; ?>
     <link rel="stylesheet" href="<?= href_asset('themes/' . $themeName . '.css') ?>">
         <?php if (!empty($settings['favicon_url']) && filter_var($settings['favicon_url'], FILTER_VALIDATE_URL)): ?>
             <link rel="icon" href="<?= e($settings['favicon_url']) ?>">
+        <?php endif; ?>
+        <?php if (($analyticsId = getenv('ANALYTICS_ID')) && preg_match('/^G-[A-Z0-9]+$/', $analyticsId)): ?>
+            <script async src="https://www.googletagmanager.com/gtag/js?id=<?= e($analyticsId) ?>"></script>
+            <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','<?= e($analyticsId) ?>');</script>
         <?php endif; ?>
 </head>
 <body class="<?= $isRtl ? 'rtl' : 'ltr' ?>" style="--brand:<?= e(valid_hex_color((string) ($settings['primary_color'] ?? ''), '#b47d2d')) ?>;--dark:<?= e(valid_hex_color((string) ($settings['accent_color'] ?? ''), '#1f2937')) ?>;">
@@ -31,6 +37,7 @@
             <a href="<?= href_page('products.php') ?>"><?= e(t('shop')) ?></a>
             <a href="<?= href_page('services.php') ?>"><?= e(t('services')) ?></a>
             <a href="<?= href_page('account/index.php') ?>"><?= e(t('account')) ?></a>
+            <a href="<?= href_page('track-order.php') ?>"><?= $lang === 'fr' ? 'Suivi' : 'تتبع' ?></a>
         </nav>
 
         <div class="header-actions">

@@ -14,9 +14,32 @@ if (!$product) {
     exit;
 }
 
+$user = current_user();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verify_csrf();
+    if (!$user) {
+        redirect(href_page('account/login.php'));
+    }
+    if (($_POST['action'] ?? '') === 'wishlist') {
+        $stmt = $pdo->prepare('INSERT IGNORE INTO wishlists (product_id, user_id) VALUES (?, ?)');
+        $stmt->execute([$product['id'], $user['id']]);
+        flash('success', $lang === 'fr' ? 'Produit ajouté aux favoris.' : 'تمت إضافة المنتج إلى المفضلة.');
+    } elseif (($_POST['action'] ?? '') === 'review') {
+        $rating = max(1, min(5, (int) ($_POST['rating'] ?? 5)));
+        $comment = trim((string) ($_POST['comment'] ?? '')) ?: null;
+        $stmt = $pdo->prepare('INSERT INTO reviews (product_id, user_id, rating, comment) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE rating = VALUES(rating), comment = VALUES(comment), is_approved = 0');
+        $stmt->execute([$product['id'], $user['id'], $rating, $comment]);
+        flash('success', $lang === 'fr' ? 'Merci. Votre avis sera vérifié avant publication.' : 'شكراً. سيتم مراجعة رأيك قبل نشره.');
+    }
+    redirect(href_page('product.php?slug=' . urlencode($slug)));
+}
+
 $relatedStmt = $pdo->prepare('SELECT * FROM products WHERE category_id = ? AND id != ? AND is_published = 1 LIMIT 3');
 $relatedStmt->execute([$product['category_id'], $product['id']]);
 $related = $relatedStmt->fetchAll();
+$reviewStmt = $pdo->prepare('SELECT r.rating, r.comment, r.created_at, u.name FROM reviews r JOIN users u ON u.id = r.user_id WHERE r.product_id = ? AND r.is_approved = 1 ORDER BY r.created_at DESC');
+$reviewStmt->execute([$product['id']]);
+$reviews = $reviewStmt->fetchAll();
 
 require __DIR__ . '/includes/header.php';
 ?>
@@ -38,6 +61,11 @@ require __DIR__ . '/includes/header.php';
                 <span class="price-old"><?= format_price((float) $product['old_price'], $lang) ?></span>
             <?php endif; ?>
         </div>
+        <form action="<?= href_page('product.php?slug=' . urlencode($slug)) ?>" method="post" style="margin-top:1rem;">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="wishlist">
+            <button class="btn btn-outline" type="submit"><?= $lang === 'fr' ? '♡ Ajouter aux favoris' : '♡ أضف إلى المفضلة' ?></button>
+        </form>
         <p><?= e($lang === 'fr' ? $product['description_fr'] : $product['description_ar']) ?></p>
 
         <form action="<?= href_page('cart.php') ?>" method="post" class="form-grid cols-2">
@@ -54,6 +82,22 @@ require __DIR__ . '/includes/header.php';
         </div>
     </div>
 </div>
+
+<section style="margin-top:2.5rem;" class="panel">
+    <h2><?= $lang === 'fr' ? 'Avis clients' : 'آراء العملاء' ?></h2>
+    <?php foreach ($reviews as $review): ?>
+        <div style="border-top:1px solid var(--border);padding:1rem 0;"><strong><?= e($review['name']) ?></strong> <span style="color:var(--brand);"><?= str_repeat('★', (int) $review['rating']) ?></span><p><?= e($review['comment'] ?? '') ?></p></div>
+    <?php endforeach; ?>
+    <?php if (!$reviews): ?><p class="muted"><?= $lang === 'fr' ? 'Aucun avis publié.' : 'لا توجد آراء منشورة.' ?></p><?php endif; ?>
+    <?php if ($user): ?>
+        <form action="<?= href_page('product.php?slug=' . urlencode($slug)) ?>" method="post" class="form-grid" style="margin-top:1rem;">
+            <?= csrf_field() ?><input type="hidden" name="action" value="review">
+            <select name="rating"><option value="5">★★★★★</option><option value="4">★★★★</option><option value="3">★★★</option><option value="2">★★</option><option value="1">★</option></select>
+            <textarea name="comment" maxlength="1000" placeholder="<?= $lang === 'fr' ? 'Votre avis' : 'رأيك' ?>"></textarea>
+            <button class="btn btn-dark" type="submit"><?= $lang === 'fr' ? 'Envoyer mon avis' : 'إرسال رأيي' ?></button>
+        </form>
+    <?php endif; ?>
+</section>
 
 <?php if ($related): ?>
 <section style="margin-top:2.5rem;">

@@ -1,0 +1,48 @@
+ALTER TABLE orders
+    ADD COLUMN discount DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER subtotal,
+    ADD COLUMN coupon_code VARCHAR(60) NULL AFTER discount;
+
+CREATE TABLE IF NOT EXISTS coupons (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(60) NOT NULL UNIQUE,
+    type ENUM('PERCENTAGE','FIXED') NOT NULL,
+    value DECIMAL(10,2) NOT NULL,
+    minimum_order DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    max_uses INT UNSIGNED NULL,
+    used_count INT UNSIGNED NOT NULL DEFAULT 0,
+    active_from DATETIME NULL,
+    active_until DATETIME NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS reviews (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    product_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    rating TINYINT UNSIGNED NOT NULL,
+    comment TEXT NULL,
+    is_approved TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_user_product_review (product_id, user_id),
+    CONSTRAINT fk_reviews_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS wishlists (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    product_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_user_wishlist_product (product_id, user_id),
+    CONSTRAINT fk_wishlists_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    CONSTRAINT fk_wishlists_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS delivery_zones (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    city VARCHAR(120) NOT NULL UNIQUE,
+    region VARCHAR(120) NULL,
+    standard_fee DECIMAL(10,2) NOT NULL DEFAULT 25.00,
+    express_fee DECIMAL(10,2) NOT NULL DEFAULT 45.00,
+    is_active TINYINT(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
