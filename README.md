@@ -24,10 +24,26 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## PHP/MySQL product imports
+
+The PHP app includes `/admin/import-products.php` for CSV exports from AliExpress, Alibaba, and
+Moroccan suppliers. Download the CSV template, map the supplier columns, select the source, and
+upload it. Existing products are updated by SKU, new categories are created automatically, and
+imported products stay unpublished unless you choose to publish them. Source name and source URL
+are retained for review.
+
+For databases installed before product imports were added, run:
+
+```sql
+ALTER TABLE products ADD COLUMN source_name VARCHAR(120) NULL AFTER category_id,
+ADD COLUMN source_url VARCHAR(500) NULL AFTER source_name;
+```
+
+Use official APIs or authorized catalog exports. Do not bypass anti-bot controls or copy images,
+trademarks, descriptions, or prices without permission.
 
 ## Deploy on Vercel
 

@@ -31,6 +31,7 @@ require __DIR__ . '/includes/admin_header.php';
             <th><?= $lang === 'fr' ? 'Catégorie' : 'الفئة' ?></th>
             <th><?= $lang === 'fr' ? 'Prix' : 'السعر' ?></th>
             <th><?= $lang === 'fr' ? 'Stock' : 'المخزون' ?></th>
+            <th><?= $lang === 'fr' ? 'Source' : 'المصدر' ?></th>
             <th></th>
         </tr>
     </thead>
@@ -42,6 +43,7 @@ require __DIR__ . '/includes/admin_header.php';
                 <td><?= e($product['category_name'] ?? '—') ?></td>
                 <td><?= format_price((float) $product['price'], $lang) ?></td>
                 <td><?= (int) $product['stock'] ?></td>
+                <td><?= e($product['source_name'] ?? '—') ?></td>
                 <td style="display:flex; gap:.5rem;">
                     <a href="<?= href_page('admin/product-form.php?id=' . (int) $product['id']) ?>" class="btn btn-outline"><?= $lang === 'fr' ? 'Modifier' : 'تعديل' ?></a>
                     <form action="<?= href_page('admin/products.php') ?>" method="post" onsubmit="return confirm('<?= $lang === 'fr' ? 'Confirmer la suppression ?' : 'تأكيد الحذف؟' ?>');">
@@ -54,7 +56,7 @@ require __DIR__ . '/includes/admin_header.php';
             </tr>
         <?php endforeach; ?>
         <?php if (empty($products)): ?>
-            <tr><td colspan="6" class="muted" style="text-align:center;"><?= $lang === 'fr' ? 'Aucun produit.' : 'لا توجد منتجات.' ?></td></tr>
+            <tr><td colspan="7" class="muted" style="text-align:center;"><?= $lang === 'fr' ? 'Aucun produit.' : 'لا توجد منتجات.' ?></td></tr>
         <?php endif; ?>
     </tbody>
 </table>

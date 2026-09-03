@@ -44,6 +44,8 @@ CREATE TABLE IF NOT EXISTS products (
     brand VARCHAR(120) NULL,
     image VARCHAR(500) NOT NULL,
     category_id INT UNSIGNED NOT NULL,
+    source_name VARCHAR(120) NULL,
+    source_url VARCHAR(500) NULL,
     is_published TINYINT(1) NOT NULL DEFAULT 1,
     is_featured TINYINT(1) NOT NULL DEFAULT 0,
     is_popular TINYINT(1) NOT NULL DEFAULT 0,
